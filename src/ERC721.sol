@@ -62,6 +62,7 @@ contract ERC721 is IERC721 {
 
     // Mapping from owner to operator approvals
     mapping(address => mapping(address => bool)) public isApprovedForAll;
+ 
 
     function supportsInterface(bytes4 interfaceId) external pure returns (bool) {
         return
@@ -153,7 +154,7 @@ contract ERC721 is IERC721 {
         );
     }
 
-    function _mint(address to, uint id) internal {
+    function mint(address to, uint id) external {
         require(to != address(0), "mint to zero address");
         require(_ownerOf[id] == address(0), "already minted");
 
@@ -163,9 +164,10 @@ contract ERC721 is IERC721 {
         emit Transfer(address(0), to, id);
     }
 
-    function _burn(uint id) internal {
+    function burn(uint id) external {
         address owner = _ownerOf[id];
         require(owner != address(0), "not minted");
+        require(owner == msg.sender, "not authorized");
 
         _balanceOf[owner] -= 1;
 
@@ -173,16 +175,5 @@ contract ERC721 is IERC721 {
         delete _approvals[id];
 
         emit Transfer(owner, address(0), id);
-    }
-}
-
-contract MyNFT is ERC721 {
-    function mint(address to, uint id) external {
-        _mint(to, id);
-    }
-
-    function burn(uint id) external {
-        require(msg.sender == _ownerOf[id], "not owner");
-        _burn(id);
     }
 }
